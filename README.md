@@ -1,3 +1,25 @@
+# KINECT NOTE
+
+This project uses https://github.com/etiennedub/pyk4a
+
+install by (*nix)
+
+```
+pip install k4a
+```
+
+install by (windows):
+
+(change version numbers to right versions of kinect SDK)
+
+```
+pip install pyk4a --no-use-pep517 --global-option=build_ext --global-option="-IC:\Program Files\Azure Kinect SDK v1.4.1\sdk\include" --global-option="-LC:\Program Files\Azure Kinect SDK v1.4.1\sdk\windows-desktop\amd64\release\lib"
+```
+
+add folder containing k4a.dll to system path
+
+# Original Readme
+
 ![OSF.png](https://raw.githubusercontent.com/emilianavt/OpenSeeFace/master/Images/OSF.png)
 
 # Overview

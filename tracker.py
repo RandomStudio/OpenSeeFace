@@ -690,7 +690,11 @@ class Tracker():
         self.fail_count = 0
 
     def detect_faces(self, frame):
-        im = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_LINEAR)[:,:,::-1] * self.std_224 + self.mean_224
+        if len(frame.shape) > 2:
+            channels = frame.shape[2]
+        else:
+            channels = 1
+        im = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_LINEAR)[:] * self.std_224 + self.mean_224
         im = np.expand_dims(im, 0)
         im = np.transpose(im, (0,3,1,2))
         outputs, maxpool = self.detection.run([], {'input': im})
