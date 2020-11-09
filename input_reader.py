@@ -9,6 +9,9 @@ import time
 import traceback
 import gc
 
+import pyk4a
+from pyk4a import Config, PyK4A
+
 class VideoReader():
     def __init__(self, capture, camera=False):
         if os.name == 'nt' and camera:
@@ -146,6 +149,54 @@ class RawReader:
     def close(self):
         self.open = False
 
+
+class KinectIRReader(VideoReader):
+    def __init__(self):
+        print("Setting up Kinect")
+        self.device = PyK4A(
+            Config(
+                color_resolution=pyk4a.ColorResolution.OFF,
+                depth_mode=pyk4a.DepthMode.PASSIVE_IR,
+                synchronized_images_only=False,
+            )
+        )
+        self.device.start()
+        print("Starting Kinect")
+        self.irCameraGain = 256
+
+    def is_open(self):
+        return self.device.is_running
+
+    def is_ready(self):
+        return self.device.is_running
+
+    def read(self):
+        print("reading")
+        capture = self.device.get_capture()
+        if not np.any(capture.ir):
+            return False, None
+        buf = capture.ir
+        
+        buf = buf.astype(float)
+        buf = np.interp(buf, (0, (65535/self.irCameraGain)), (0, 255))
+
+        buf = buf.clip(0, 255).astype(np.uint8)
+
+        return True, buf
+
+        print(buf.min())        
+        print(buf.max())
+        print(buf)
+        raise RuntimeError()
+        
+        return True, buf
+        
+        
+
+    def close(self):
+        self.device.stop()
+
+
 def try_int(s):
     try:
         return int(s)
@@ -183,6 +234,8 @@ class InputReader():
         try:
             if raw_rgb > 0:
                 self.reader = RawReader(width, height)
+            elif capture == "kinectir":
+                self.reader = KinectIRReader()
             elif os.path.exists(capture):
                 self.reader = VideoReader(capture)
             elif capture == str(try_int(capture)):
